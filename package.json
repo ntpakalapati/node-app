@@ -8,7 +8,9 @@
   "dependencies": {
     "body-parser": "^1.20.0",
     "cors": "^2.8.5",
+    "crypto": "^1.0.1",
     "express": "^4.18.1",
+    "fs": "*",
     "jsonwebtoken": "^8.5.1",
     "pg": "^8.7.3"
   }

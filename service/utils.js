@@ -1,6 +1,8 @@
 const { generateHasuraToken } = require('./jwt');
+const fs = require('fs');
+const Pool = require('pg').Pool;
+const { decrypt, encrypt } = require('./password');
 
-const Pool = require('pg').Pool
 const pool = new Pool({
   user: 'admin',
   host: 'postgresql-85006-0.cloudclusters.net',
@@ -14,7 +16,7 @@ const getUsers = (request, response) => {
     if (error) {
       throw error
     }
-    console.log(results.rows)
+    // console.log(results.rows)
     return results.rows
   })
 }
@@ -24,28 +26,33 @@ const getProducts = (request, response) => {
     if (error) {
       throw error
     }
-    console.log(results)
+    // console.log(results)
     response.status(200).json(results)
   })
 }
 
-const getUserByEmail = async(request, response) => {
-  const { query: { email } } = request;
+const getUserByEmail = async (request, response) => {
+  const { query: { email, password } } = request;
   pool.query('SELECT * FROM "user".users WHERE email = $1', [email], (error, results) => {
     if (error) {
       throw error
     }
     const userData = results.rows[0];
-    const info = { userid: userData.id, email: userData.email}
-    const token = generateHasuraToken(info)
-    response.status(200).send(token)
+    var decriptedPws = decrypt(userData?.password)
+    if (password === decriptedPws) {
+      const info = { userid: userData.id, email: userData.email }
+      const token = generateHasuraToken(info)
+      response.status(200).send({ 'token': token })
+    } else {
+      response.send({ 'message': "In valid password..., plase enter valid password" })
+    }
   })
 }
 
 const createUser = (request, response) => {
-  const { name, email } = request.body
-
-  pool.query('INSERT INTO "user".users (id,name, email) VALUES ($1, $2, $3) RETURNING *', [1, name, email], (error, results) => {
+  const { name, email, password } = request.body
+  var encriptedPws = encrypt(password)
+  pool.query('INSERT INTO "user".users (id,name, email, password) VALUES ($1, $2, $3) RETURNING *', [2, name, email, encriptedPws], (error, results) => {
     if (error) {
       throw error
     }
@@ -55,9 +62,10 @@ const createUser = (request, response) => {
 
 const insertProduct = (request, response) => {
   console.log(request.body)
-  const { id, name, description, price, status}  = request.body
-
-  pool.query('INSERT INTO "product".products (id,name, description, price, status) VALUES ($1, $2, $3, $4, $5) RETURNING *', [id, name, description, price, status], (error, results) => {
+  const { id, name, description, price, status, image } = request.body
+  // const bufferedFile = fs.readFileSync(image, { encoding: 'hex' });
+  // const fileData = `\\x${bufferedFile}`;
+  pool.query('INSERT INTO "product".products (id,name, description, price, status, image) VALUES ($1, $2, $3, $4, $5, $6) RETURNING *', [id, name, description, price, status, image], (error, results) => {
     if (error) {
       throw error
     }
