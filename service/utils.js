@@ -1,4 +1,4 @@
-const { generateHasuraToken } = require('./jwt');
+const { generateJwtToken } = require('./jwt');
 const fs = require('fs');
 const Pool = require('pg').Pool;
 const { decrypt, encrypt } = require('./password');
@@ -17,7 +17,7 @@ const getUsers = (request, response) => {
       throw error
     }
     // console.log(results.rows)
-    return results.rows
+    response.send(results.rows)
   })
 }
 
@@ -33,7 +33,7 @@ const getProducts = (request, response) => {
 
 const getUserByEmail = async (request, response) => {
   const { query: { email, password } } = request;
-  pool.query('SELECT * FROM "user".users WHERE email = $1', [email], (error, results) => {
+  pool.query('SELECT * FROM "user".users WHERE email = $1 and password = $2', [email, ], (error, results) => {
     if (error) {
       throw error
     }
@@ -41,7 +41,7 @@ const getUserByEmail = async (request, response) => {
     var decriptedPws = decrypt(userData?.password)
     if (password === decriptedPws) {
       const info = { userid: userData.id, email: userData.email }
-      const token = generateHasuraToken(info)
+      const token = generateJwtToken(info)
       response.status(200).send({ 'token': token })
     } else {
       response.send({ 'message': "In valid password..., plase enter valid password" })
