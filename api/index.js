@@ -2,7 +2,7 @@ var express = require('express');
 var bodyParser = require('body-parser');
 var app = express();
 var cors = require('cors');
-const { createUser, getUserByEmail, getProducts, insertProduct } = require('./service/utils');
+const { createUser, getUserByEmail, getProducts, insertProduct } = require('../service/utils');
 app.use(bodyParser.json());
 app.use(cors())
 app.listen(8000);
