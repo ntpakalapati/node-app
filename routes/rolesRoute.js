@@ -5,4 +5,4 @@ const rolesRoute = Router();
 
 rolesRoute.get('/roles', getAllRoles);
 
-export default rolesRoute;
+module.exports = rolesRoute

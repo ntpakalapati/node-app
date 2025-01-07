@@ -8,7 +8,7 @@ const pool = mariadb.createPool({
   database: "campuslog",
 });
 
-export async function asyncFunction() {
+async function asyncFunction() {
     let conn;
     try {
       conn = await pool.getConnection();
@@ -22,3 +22,4 @@ export async function asyncFunction() {
     }
   }
   
+module.exports = { asyncFunction }
