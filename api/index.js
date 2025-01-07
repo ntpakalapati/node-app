@@ -11,6 +11,8 @@ app.get('/', function (req, res) {
   res.send('node js');
 })
 
+app.use("/api", rolesRoutes);
+
 app.post('/register', function (req, res) {
   return createUser(req, res);
 }) 
